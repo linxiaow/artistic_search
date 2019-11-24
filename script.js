@@ -25,6 +25,8 @@ var resultView = new Vue({
 
       //first, break name join by +
       this.genres = []; //clear it to empty
+      this.selected_genre = []; //clear it to empty
+
       let keywords = event.target.value;
       let terms = keywords.split(' ').join('+')
       //alert(keywords_add)
@@ -35,18 +37,20 @@ var resultView = new Vue({
         .then(response => {
           console.log(response.data.results);
           this.infos = response.data.results;
+          this.selected_info = this.infos.slice();
+
           this.totalFound = response.data.resultCount;
           if (this.totalFound == 0){
             alert("No artist is found with keywords " + keywords)
           }
           for (let i in this.infos){
             let genre = this.infos[i].primaryGenreName;
-            console.log(genre);
+            //console.log(genre);
             if(!this.genres.includes(genre)){
               this.genres.push(genre);
             }
           }
-          console.log(this.genres);
+          //console.log(this.genres);
           this.load_success = new Array(this.infos.length).fill(false);
           this.tab = new Array(this.infos.length).fill('Description');
           this.wiki_info = new Array(this.infos.length).fill("");
@@ -111,6 +115,52 @@ var resultView = new Vue({
         console.log(error);
       })
       //}
+    },
+
+    togle_btn(index){
+      //console.log(this.selected_genre);
+      //console.log("???")
+      let genre = this.genres[index];
+      let selected_idx = this.selected_genre.indexOf(genre);
+      if(selected_idx === -1){
+        // not in it
+        this.selected_genre.push(genre);
+        //console.log(this.selected_genre);
+      }else{
+        this.selected_genre.splice(selected_idx, 1);
+      }
+      this.selected_info = [];
+
+      if(this.selected_genre.length === 0){
+        //all been unselected
+        this.selected_info = this.infos.slice();
+      }
+      else{
+        for(let i in this.infos){
+          //console.log(i);
+          let cur_genre = this.infos[i].primaryGenreName;
+          if(this.selected_genre.includes(cur_genre)){
+            this.selected_info.push(this.infos[i]);
+          }
+        }
+      }
+      
+
+    },
+
+    check_btn(index){
+      let genre = this.genres[index];
+      if(this.selected_genre.includes(genre)){
+        //selected before
+        //this.selected_genre.splice(index, 1);
+        //console.log(this.selected_genre);
+        return "btn btn-primary";
+      }else{
+        //not selected before
+        //this.selected_genre.push(genre);
+        //console.log(this.selected_genre);
+        return "btn btn-light";
+      }
     },
   }
 })
