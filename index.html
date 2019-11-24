@@ -56,9 +56,14 @@
 
            <div>
               <h5>Search Result (Total {{totalFound}} results found.)</h5>
+              <div v-if="show_result">
+              <span>
+                 <button class = "btn btn-success" style="margin:2px;">ALL</button>
+             </span>
               <span v-for="genre in genres">
-                  <button class = "btn btn-success" style="margin:2px;">{{genre}}</button>
+                  <button class = "btn btn-light" style="margin:2px;">{{genre}}</button>
               </span>
+            </div>
            </div>
            <h4>
               List of results

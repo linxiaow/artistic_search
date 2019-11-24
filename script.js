@@ -6,13 +6,15 @@ var resultView = new Vue({
   data: {
     totalFound: 0,
     infos: [],
+    selected_info: [],
     no_info: "No information provided",
     no_artist: "Sorry, there is no information for this artist!",
     //tab_exp: "None",
     tab: [], //Description, information
     load_success: [],
     wiki_info: [],
-    genres: ["ALL"],
+    genres: [],
+    selected_genre: [],
     show_result: false, //if show the genre
     artist1: './img/1.jpg',
     artist2: './img/2.jpg',
@@ -22,7 +24,7 @@ var resultView = new Vue({
       // on keys up, specified previously
 
       //first, break name join by +
-      this.genres = ["ALL"]; //clear it to empty
+      this.genres = []; //clear it to empty
       let keywords = event.target.value;
       let terms = keywords.split(' ').join('+')
       //alert(keywords_add)
@@ -49,6 +51,7 @@ var resultView = new Vue({
           this.tab = new Array(this.infos.length).fill('Description');
           this.wiki_info = new Array(this.infos.length).fill("");
           //this.tab_exp = "Description";
+          this.show_result = true;
         })
         .catch(error => console.log(error))
     },
