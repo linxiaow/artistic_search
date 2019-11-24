@@ -17,6 +17,9 @@
       padding-bottom: 5px;
       padding-top: 3px;
       }
+      span.title{
+         font-weight: bold;
+      }
       .genre{
       border:solid 2px;
       border-radius: 3px;
@@ -24,6 +27,9 @@
       white-space: nowrap;
       background-color:#ccc;
       padding:2px;
+      }
+      .item{
+         margin-bottom: 10px;
       }
       /*img {
       height: 200px;
@@ -42,14 +48,17 @@
          <div class = "row searchbar" >
             <div class = "col-lg-12 col-md-12 col-sm-12">
                <h4>Enter the name of the artist and enter : </h4>
-               <input type="text">
+               <input v-on:keyup.enter="search" type="text">
             </div>
          </div>
 
          <div class = "col-lg-12 col-md-12 col-sm-12">
 
            <div>
-              <button class = "btn btn-success" style="margin:2px;">ALL</button>
+              <h5>Search Result (Total {{totalFound}} results found.)</h5>
+              <span v-for="genre in genres">
+                  <button class = "btn btn-success" style="margin:2px;">{{genre}}</button>
+              </span>
            </div>
            <h4>
               List of results
@@ -57,22 +66,55 @@
          </div>
 
        <div>
-         <div class = "col-lg-6 col-md-6 col-sm-6" style='margin-bottom: 50px; display: inline; height: 250px' >
+         <div class = "col-lg-6 col-md-6 col-sm-6" style='margin-bottom: 50px; display: inline; height: 250px' v-for='(info, idx) in infos' v-bind:key=info.trackId>
            <div class="col-sm-4" style='max-width:200px;margin-right: 30px'>
-             <img style='width: 120%; display: inline; ' v-bind:src="artist1">
+             <img style='width: 120%; display: inline; ' v-bind:src="info.artworkUrl100">
           </div>
 
           <div class="col-sm-6" style='max-height: 250px;'>
              <ul class="nav nav-tabs">
-                <li class="active"><a data-toggle="tab" >Tab1</a></li>
-                <li><a data-toggle="tab">Tab2</a></li>
+                <li class="active"><a data-toggle="tab" v-on:click="togle_status(idx, 'Description')" >Description</a></li>
+                <li><a data-toggle="tab" v-on:click="togle_status(idx, 'Information')">Artist Infor.</a></li>
              </ul>
-             <div class="tab-content">
+             <div class="tab-content" v-if="displayContent(idx, 'Description', true)">
+               <div class='item'>
+                  <span class="title">Artist Name:</span>
+                  <span>{{info.artistName ? info.artistName : no_info}}</span>
+               </div>
+               
+               <div class='item'>
+                  <span class="title">Collection Name:</span>
+                  <span>{{info.collectionName ? info.collectionName : no_info}}</span>
+               </div>
+
+               <div class='item'>
+                  <span class="title">Price:</span>
+                  <span>{{info.collectionPrice ? info.collectionPrice : no_info}}</span>
+               </div>
+
+               <div class='item'>
+                  <span class="title">Type:</span>
+                  <span> {{info.kind ? info.kind : no_info}}</span>
+               </div>
+               
+               <div class='item'>
+                  <span class="title">Preview:</span>
+                  <span><a class='song' v-bind:href="info.previewUrl">link</a></span>
+               </div>
+                  
              </div>
+             <div class="tab-content" v-if="displayContent(idx, 'Information', true)">
+                {{wiki_info[idx]}}
+             </div>
+             <div class="tab-content" v-if="displayContent(idx, 'Information', false)">
+               <img style='width: 60%' src="loading.gif">
+            </div>
+
            </div>
 
          </div>
 
+         <!--
          <div class = "col-lg-6 col-md-6 col-sm-6" style='margin-bottom: 50px; display: inline; height: 250px' >
            <div class="col-sm-4" style='max-width:200px;margin-right: 30px'>
              <img style='width: 120%; display: inline; ' v-bind:src="artist2">
@@ -86,8 +128,9 @@
              <div class="tab-content">
              </div>
            </div>
-
+         
          </div>
+         -->
       </div>
     </div>
   </div>
