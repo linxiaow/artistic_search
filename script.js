@@ -112,7 +112,13 @@ var resultView = new Vue({
       // console.log(this.tab[index])
       //if(!this.load_before[index]){
         // not loaded before, need an api call
-      let artist = this.infos[index].artistName
+      let artist_row = this.infos[index].artistName;
+      let artist_list = artist_row.split(',');
+      if(artist_list.length === 1){
+        artist_list = artist_list[0].split('&');
+      }
+      let artist = artist_list[0];
+      console.log(artist);
       axios
       .get('https://en.wikipedia.org/w/api.php?action=opensearch&search='+artist+'&origin=*')
       .then(response => {
@@ -249,5 +255,9 @@ var resultView = new Vue({
         this.get_selected();
       }
     },
+
+    get_filtered_num(){
+      return this.selected_info.length;
+    }
   }
 })
