@@ -58,11 +58,21 @@
               <h5>Search Result (Total {{totalFound}} results found.)</h5>
               <div v-if="show_result">
               <span>
-                 <button class = "btn btn-success" style="margin:2px;">ALL</button>
+                 <button class = "btn btn-success" v-on:click="clear_filter" style="margin:2px;">ALL</button>
              </span>
               <span v-for="(genre, idx) in genres">
                   <button v-bind:class="check_btn(idx)" v-on:click="togle_btn(idx)" style="margin:2px;">{{genre}}</button>
               </span>
+              <span class="dropdown">
+                  <button class="btn btn-info dropdown-toggle" type="button" data-toggle="dropdown">Sort by
+                  <span class="caret"></span></button>
+                  <ul class="dropdown-menu">
+                     <li><a v-on:click="result_sort('price')">Price</a></li>
+                     <li><a v-on:click="result_sort('collection')">Collection Name</a></li>
+                     <li><a v-on:click="result_sort('type')">Type</a></li>
+                     <li><a v-on:click="result_sort('unsort')">Reset</a></li>
+                  </ul>
+               </span>
             </div>
            </div>
            <h4>
@@ -76,8 +86,8 @@
              <img style='width: 120%; display: inline; ' v-bind:src="info.artworkUrl100">
           </div>
 
-          <div class="col-sm-6" style='max-height: 250px;'>
-             <ul class="nav nav-tabs">
+          <div class="col-sm-6" style='max-height: 250px;' >
+             <ul class="nav nav-tabs" v-bind:key=idx>
                 <li class="active"><a data-toggle="tab" v-on:click="togle_status(idx, 'Description')" >Description</a></li>
                 <li><a data-toggle="tab" v-on:click="togle_status(idx, 'Information')">Artist Infor.</a></li>
              </ul>
@@ -94,7 +104,7 @@
 
                <div class='item'>
                   <span class="title">Price:</span>
-                  <span>{{info.collectionPrice ? info.collectionPrice : no_info}}</span>
+                  <span>${{info.collectionPrice ? info.collectionPrice : no_info}}</span>
                </div>
 
                <div class='item'>
@@ -109,7 +119,7 @@
                   
              </div>
              <div class="tab-content" v-if="displayContent(idx, 'Information', true)">
-                {{wiki_info[idx]}}
+                {{show_wiki(idx)}}
              </div>
              <div class="tab-content" v-if="displayContent(idx, 'Information', false)">
                <img style='width: 60%' src="loading.gif">

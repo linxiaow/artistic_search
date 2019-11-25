@@ -6,11 +6,14 @@ var resultView = new Vue({
   data: {
     totalFound: 0,
     infos: [],
+    infos_backup:[],
     selected_info: [],
     no_info: "No information provided",
     no_artist: "Sorry, there is no information for this artist!",
     //tab_exp: "None",
     tab: [], //Description, information
+    //selected_tab:[],
+    selected_idx: [], //store selected index
     load_success: [],
     wiki_info: [],
     genres: [],
@@ -38,6 +41,7 @@ var resultView = new Vue({
           console.log(response.data.results);
           this.infos = response.data.results;
           this.selected_info = this.infos.slice();
+          this.infos_backup = this.infos.slice();
 
           this.totalFound = response.data.resultCount;
           if (this.totalFound == 0){
@@ -49,10 +53,12 @@ var resultView = new Vue({
             if(!this.genres.includes(genre)){
               this.genres.push(genre);
             }
+            this.selected_idx.push(i); //at the begining, all
           }
           //console.log(this.genres);
           this.load_success = new Array(this.infos.length).fill(false);
           this.tab = new Array(this.infos.length).fill('Description');
+          //this.selected_tab = this.tab.slice();
           this.wiki_info = new Array(this.infos.length).fill("");
           //this.tab_exp = "Description";
           this.show_result = true;
@@ -62,14 +68,17 @@ var resultView = new Vue({
 
     displayContent: function(index, type, loaded){
       //type = Description or Information
-      if(this.tab[index] === type){
+      //console.log("In display content and index = "+ index.toString());
+      let idx = this.trans_idx(index);
+      //console.log("Translate to "+idx.toString());
+      if(this.tab[idx] === type){
         if(type === 'Description'){
           //console.log("Description");
           return true;
         }
         else if(type === 'Information'){
           //console.log("Information");
-          return loaded === this.load_success[index];
+          return loaded === this.load_success[idx];
         }
       }
       return false;
@@ -77,17 +86,24 @@ var resultView = new Vue({
 
     togle_status(index, change_to){
       //change_to = Description or information
-      if(change_to === this.tab[index]){
+      //console.log("In togle status and index = "+ index.toString());
+      //console.log("togle status, the index is")
+      //console.log(index);
+      let idx = this.trans_idx(index);
+      console.log("translate to index ");
+      //console.log(idx);
+      //console.log("Translate to "+idx.toString());
+      if(change_to === this.tab[idx]){
         //no need to change again
         return;
       }
-      this.tab.splice(index, 1, change_to);
+      this.tab.splice(idx, 1, change_to);
       if(change_to === 'Description'){
         //not loaded
-        this.load_success.splice(index, 1, false);
+        this.load_success.splice(idx, 1, false);
       }
       else if(change_to === 'Information'){
-        this.load_wiki(index);
+        this.load_wiki(idx); // this index will be normal index
       }
     },
 
@@ -105,6 +121,7 @@ var resultView = new Vue({
         //console.log(this.load_success)
         console.log(response.data);
         let artist_info = response.data[2][0];
+        //console.log(artist_info);
         if(artist_info){
           this.wiki_info[index] = artist_info;
         }else{
@@ -119,33 +136,55 @@ var resultView = new Vue({
 
     togle_btn(index){
       //console.log(this.selected_genre);
-      //console.log("???")
+      //console.log("togle buttom index " + index.toString())
+
+      //first, change all value of tab to description
+      //this.tab = new Array(this.infos.length).fill("Description");
+      
+      this.tab = [];
+      for(let i in this.infos){
+        this.tab.push("Description");
+      }
       let genre = this.genres[index];
-      let selected_idx = this.selected_genre.indexOf(genre);
-      if(selected_idx === -1){
+      let s_idx = this.selected_genre.indexOf(genre);
+      if(s_idx === -1){
         // not in it
         this.selected_genre.push(genre);
         //console.log(this.selected_genre);
       }else{
-        this.selected_genre.splice(selected_idx, 1);
+        this.selected_genre.splice(s_idx, 1);
       }
-      this.selected_info = [];
 
+      //this.selected_tab = [];
+      this.get_selected();
+      
+    },
+
+    get_selected(){
+      this.selected_info = [];
+      this.selected_idx = [];
       if(this.selected_genre.length === 0){
         //all been unselected
         this.selected_info = this.infos.slice();
+        for(let i in this.infos){
+          this.selected_idx.push(i);
+        }
       }
       else{
         for(let i in this.infos){
           //console.log(i);
           let cur_genre = this.infos[i].primaryGenreName;
+          //let cur_tab = this.tab[i];
           if(this.selected_genre.includes(cur_genre)){
             this.selected_info.push(this.infos[i]);
+            this.selected_idx.push(i);
+            
+           //this.selected_tab.push(cur_tab);
           }
+          //console.log("In genre selection")
+          //console.log(this.selected_idx);
         }
       }
-      
-
     },
 
     check_btn(index){
@@ -160,6 +199,54 @@ var resultView = new Vue({
         //this.selected_genre.push(genre);
         //console.log(this.selected_genre);
         return "btn btn-light";
+      }
+    },
+
+    clear_filter(){
+      if(this.selected_genre.length !== 0){
+        //console.log("clear filter");
+        this.selected_genre = [];
+        this.selected_info = this.infos.slice();
+        this.selected_idx = [];
+        for(let i in this.infos){
+          this.selected_idx.push(i);
+        }
+        //this.selected_tab = this.tab.slice();
+      }
+    },
+
+    trans_idx(index){
+      return this.selected_idx[index];
+    },
+
+    show_wiki(index){
+      let idx = this.trans_idx(index);
+      return this.wiki_info[idx];
+    },
+
+    result_sort(where){
+      //where = price, collection, type, unsort
+      if(where === 'unsort'){
+        this.infos = this.infos_backup.slice();
+        this.get_selected();
+      }else if(where === 'price'){
+        //sort by price
+        this.infos.sort((a, b) =>(
+          a.collectionPrice > b.collectionPrice? 1 : -1
+        ));
+        this.get_selected();
+      }else if(where === 'collection'){
+        //sort by price
+        this.infos.sort((a, b) =>(
+          a.collectionName > b.collectionName? 1 : -1
+        ));
+        this.get_selected();
+      }else if(where === 'type'){
+        //sort by price
+        this.infos.sort((a, b) =>(
+          a.kind > b.kind? 1 : -1
+        ));
+        this.get_selected();
       }
     },
   }
