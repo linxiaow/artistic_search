@@ -5,4 +5,8 @@
     2.3 type: group by type
     2.4 reset: unsort the items
 3. add number of result filtered
-Comment: I used v-bind:key but there might be sometimes the description and information togle doesn't work. It is OK for my computer but sometimes CAEN will fail.
+
+Comment: 
+1. I used v-bind:key but there might be sometimes the description and information togle doesn't work. It is OK for my computer but sometimes CAEN will fail.
+
+2. there is some case that the price is -1 returned by the api. I assume it is no information provided.
